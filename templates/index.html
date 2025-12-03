@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>學生資料管理系統</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #444;
+    }
+
+    .head_content {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 90%;
+        margin: 0 auto 20px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background-color: #007BFF;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f7ff;
+    }
+
+    a {
+        text-decoration: none;
+        color: #007BFF;
+        margin: 0 5px;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        border: 1px solid #007BFF;
+        background-color: #007BFF;
+        color: #fff;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    form {
+        margin: 20px 0;
+    }
+
+    input[type="search"] {
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        padding: 6px 12px;
+        border-radius: 4px;
+        border: none;
+        background-color: #28a745;
+        color: #fff;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background-color: #218838;
+    }
+
+    .pagination a, .pagination strong {
+        display: inline-block;
+        margin: 0 4px;
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid #007BFF;
+        color: #007BFF;
+        text-decoration: none;
+    }
+
+    .pagination strong {
+        background-color: #007BFF;
+        color: #fff;
+        border-color: #007BFF;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="head_content">
+    <h1>學生資料管理系統</h1>
+    <h2>
+        目前的資料筆數: {{ data_count }}，
+        <a class="btn" href="/post/">新增學生資料</a>
+    </h2>
+
+    <div style="text-align: center;">
+        <form action="/index/" method="get">
+            <label for="site_search">搜尋關鍵字：</label>
+            <input type="search" id="site_search" name="site_search" value="{{ site_search }}">
+            <button type="submit">搜尋</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    {% if status %}
+    <table>
+        <tr>
+            <th>學號</th>
+            <th>姓名</th>
+            <th>性別</th>
+            <th>生日</th>
+            <th>信箱</th>
+            <th>電話</th>
+            <th>地址</th>
+            <th>操作</th>
+        </tr>
+        {% for data in page_obj %}
+        <tr>
+            <td>{{ data.cID }}</td>
+            <td>{{ data.cName }}</td>
+            <td>{% if data.cSex == "M" %}男{% else %}女{% endif %}</td>
+            <td>{{ data.cBirthday | date:'Y-m-d' }}</td>
+            <td>{{ data.cEmail }}</td>
+            <td>{{ data.cPhone }}</td>
+            <td>{{ data.cAddr }}</td>
+            <td>
+                <a class="btn" href="/edit/{{ data.cID }}">編輯</a>
+                <a class="btn" href="/delete/{{ data.cID }}" style="background-color:#dc3545; border-color:#dc3545;">刪除</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination" style="text-align: center; margin-bottom: 30px;">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if site_search %}&site_search={{ site_search }}{% endif %}">最前頁</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if site_search %}&site_search={{ site_search }}{% endif %}">上一頁</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <strong>{{ num }}</strong>
+            {% else %}
+                <a href="?page={{ num }}{% if site_search %}&site_search={{ site_search }}{% endif %}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if site_search %}&site_search={{ site_search }}{% endif %}">下一頁</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if site_search %}&site_search={{ site_search }}{% endif %}">最後頁</a>
+        {% endif %}
+    </div>
+    {% else %}
+        <h1 style="text-align: center; color: #dc3545;">{{ errormessage }}</h1>
+    {% endif %}
+</div>
+{% endblock %}
+
